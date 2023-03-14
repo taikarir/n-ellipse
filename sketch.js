@@ -1,5 +1,6 @@
 let canvasSize = 800;
 let nodeSize   = 50;
+let radius     = 500;
 
 var heldNode = "none";
 
@@ -14,18 +15,24 @@ function setup() {
 }
 
 function draw() {
-console.log(heldNode);
     background(0, 0, 0);
+    var avg = calcAverage();
+    point(avg[0], avg[1]);
     for (i in nodes) {
         fill(255, 255, 255);
-        ellipse(nodes[i].x, nodes[i].y, 50, 50);
+        ellipse(nodes[i].x, nodes[i].y, 5, 5);
     }
     if (heldNode !== "none") {
         nodes[heldNode].dragged();
     }
+
+    drawEllipse();
 }
 
 function mouseClicked() {
+    if (heldNode !== "none") {
+        return;
+    }
     console.log("new node at "+[mouseX, mouseY]);
     nodes.push(new Node(mouseX, mouseY, nodeSize));
 }
@@ -55,4 +62,58 @@ function mouseMoved() {
         }
     }
     cursor(ARROW);
+}
+
+function calcDistance(x, y) {
+    var sum = 0;
+    for (i in nodes) {
+        sum += dist(nodes[i].x, nodes[i].y, x, y);
+    }
+    return sum;
+}
+
+function calcAverage() {
+    var sumx = 0;
+    var sumy = 0;
+    for (i in nodes) {
+        sumx += nodes[i].x;
+        sumy += nodes[i].y;
+    }
+    return [sumx/nodes.length, sumy/nodes.length];
+}
+
+function checkRadius(theta, center) {
+    // console.log(theta);
+    var rad = 0;
+    var testx;
+    var testy;
+    var distance;
+
+    while (rad < radius) {
+        testx = center[0] + rad * cos(theta);
+        testy = center[1] + rad * sin(theta);
+        console.log(testx, testy);
+        distance = calcDistance(testx, testy);
+        if (abs(distance - radius) < (0.1 * radius)) {
+            point(testx, testy);
+            return;
+        }
+        rad += 1
+    }
+}
+
+function drawEllipse() {
+    var theta = 0;
+    
+    let thetaStep = 10;
+    let thetaStop = 360;
+    var center = calcAverage();
+    point(center[0], center[1]);
+    stroke(255, 0, 0);
+
+    while (theta <= thetaStop) {
+        checkRadius(theta, center);
+        theta += thetaStep;
+    }
+    console.log("done");
 }
