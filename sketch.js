@@ -112,28 +112,29 @@ function checkRadius(theta, center, shapeRadius, prevRad) {
 }
 
 function drawEllipse() {
-    for (var indRad = 0; indRad < radius; indRad += radius/20) {
     var theta = 0;
-    
     let thetaStep = 1;
     let thetaStop = 400;
-    var center = calcAverage();
-    
-    var prevRad = 0;
-    curveNodes = [];
+    var prevRad;
 
-    noFill();
+    for (var indRad = 0; indRad < radius; indRad += radius/20) {
+        theta = 0;
+        center = calcAverage();
+        prevRad = 0;
+        curveNodes = [];
+
+        noFill();
     
-    while (theta <= thetaStop) {
-        prevRad = checkRadius(theta, center, indRad, prevRad);
-        theta += thetaStep;
-    }
+        while (theta <= thetaStop) {
+            prevRad = checkRadius(theta, center, indRad, prevRad);
+            theta += thetaStep;
+        }
     
-    beginShape();
-    for (i in curveNodes) {
-        curveVertex(curveNodes[i][0], curveNodes[i][1]);
-    }
-    endShape();
+        beginShape();
+            for (i in curveNodes) {
+                curveVertex(curveNodes[i][0], curveNodes[i][1]);
+            }
+        endShape();
     }
     console.log("done");
 }
