@@ -1,6 +1,5 @@
 let canvasSize = 800;
 let nodeSize   = 50;
-let radius     = 200;
 
 var heldNode = "none";
 var curveNodes = [];
@@ -27,11 +26,7 @@ function draw() {
     if (heldNode !== "none") {
         nodes[heldNode].dragged();
     }
-    if (keyIsPressed) {
-        drawEllipse();
-        
-
-    }
+    drawEllipse();
 }
 
 function mousePressed() {
@@ -43,8 +38,12 @@ function mousePressed() {
     if (heldNode !== "none") {
         return;
     }
-    console.log("new node at "+[mouseX, mouseY]);
-    nodes.push(new Node(mouseX, mouseY, nodeSize));
+    
+    if (mouseX >= 0 && mouseX <= canvasSize
+     && mouseY >= 0 && mouseY <= canvasSize) {
+        console.log("new node at "+[mouseX, mouseY]);
+        nodes.push(new Node(mouseX, mouseY, nodeSize));
+    }
 }
 
 function mouseDragged() {
@@ -74,12 +73,20 @@ function mouseMoved() {
     cursor(ARROW);
 }
 
-function calcDistance(x, y) {
+function sumDistance(x, y) {
     var sum = 0;
     for (i in nodes) {
         sum += dist(nodes[i].x, nodes[i].y, x, y);
     }
     return sum;
+}
+
+function multiplyDistance(x, y) {
+    var prod = 1;
+    for (i in nodes) {
+        prod *= dist(nodes[i].x, nodes[i].y, x, y);
+    }
+    return prod;
 }
 
 function calcAverage() {
@@ -92,7 +99,7 @@ function calcAverage() {
     return [sumx/nodes.length, sumy/nodes.length];
 }
 
-function checkRadius(theta, center, shapeRadius, prevRad) {
+function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var rad = prevRad;
     var testx;
     var testy;
@@ -102,8 +109,27 @@ function checkRadius(theta, center, shapeRadius, prevRad) {
     while (rad < newradius) {
         testx = center[0] + rad * cos(theta);
         testy = center[1] + rad * sin(theta);
-        distance = calcDistance(testx, testy);
-        if (abs(distance - newradius) < (0.01 * newradius)) {
+        distance = sumDistance(testx, testy);
+        if (abs(distance - newradius) < (accuracy * newradius)) {
+            curveNodes.push([testx, testy]);
+            return (rad * 0.9);
+        }
+        rad += 1
+    }
+}
+
+function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
+    var rad = prevRad;
+    var testx;
+    var testy;
+    var distance;
+    var newradius = pow(shapeRadius, nodes.length);
+
+    while (rad < newradius) {
+        testx = center[0] + rad * cos(theta);
+        testy = center[1] + rad * sin(theta);
+        distance = multiplyDistance(testx, testy);
+        if (abs(distance - newradius) < (accuracy * newradius)) {
             curveNodes.push([testx, testy]);
             return (rad * 0.9);
         }
@@ -112,8 +138,11 @@ function checkRadius(theta, center, shapeRadius, prevRad) {
 }
 
 function drawEllipse() {
+    var radius = parseInt(document.getElementById("radius").value);
+    var thetaStep = parseInt(document.getElementById("thetaStep").value);
+    var accuracy = parseInt(document.getElementById("accuracy").value)/1000;
+
     var theta = 0;
-    let thetaStep = 1;
     let thetaStop = 400;
     var prevRad;
 
@@ -126,7 +155,7 @@ function drawEllipse() {
         noFill();
     
         while (theta <= thetaStop) {
-            prevRad = checkRadius(theta, center, indRad, prevRad);
+            prevRad = sumCheckRadius(theta, center, accuracy, indRad, prevRad);
             theta += thetaStep;
         }
     
@@ -136,5 +165,4 @@ function drawEllipse() {
             }
         endShape();
     }
-    console.log("done");
 }

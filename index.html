@@ -5,6 +5,47 @@
     <script src="nodeclass.js"></script>
   </head>
   <body>
-
+    <span>
+      Resolution:<br> 
+      <input type="range" min="1" max="100" value="1" class="slider" id="thetaStep">
+      <output for="thetaStep" id="thetaStepValue"></output>
+    </span>
+    <br>
+    <span>
+      Radius:<br>
+      <input type="range" min="50" max="500" value="200" class="slider" id="radius">
+      <output for="radius" id="radiusValue"></output>
+    </span>
+    <br>
+    <span>
+      Margin of Error:<br>
+      <input type="range" min="1" max="1000" value="10" class="slider" id="accuracy">
+      <output for="accuracy" id="accuracyValue"></output>
+    </span>
   </body>
+  <script>
+    var thetaSlider = document.getElementById("thetaStep");
+    var thetaSliderOutput = document.getElementById("thetaStepValue");
+    thetaSliderOutput.innerHTML = Math.round(360/thetaSlider.value); // Display the default slider value
+
+    thetaSlider.oninput = function() {
+      thetaSliderOutput.innerHTML = Math.round(360/this.value);
+    }
+    
+    var radiusSlider = document.getElementById("radius");
+    var radiusSliderOutput = document.getElementById("radiusValue");
+    radiusSliderOutput.innerHTML = radiusSlider.value; // Display the default slider value
+
+    radiusSlider.oninput = function() {
+      radiusSliderOutput.innerHTML = this.value;
+    }
+
+    var accuracySlider = document.getElementById("accuracy");
+    var accuracySliderOutput = document.getElementById("accuracyValue");
+    accuracySliderOutput.innerHTML = accuracySlider.value/1000; // Display the default slider value
+
+    accuracySlider.oninput = function() {
+      accuracySliderOutput.innerHTML = this.value/1000;
+    }
+  </script>
 </html>
