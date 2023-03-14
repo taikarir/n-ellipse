@@ -1,5 +1,8 @@
 let canvasSize = 800;
 let nodeSize   = 50;
+
+var heldNode;
+
 var nodes = [];
 
 
@@ -20,12 +23,26 @@ function draw() {
 
 function mouseClicked() {
     console.log("new node at "+[mouseX, mouseY]);
-    nodes.push(new Node(mouseX, mouseY));
+    nodes.push(new Node(mouseX, mouseY, nodeSize));
+}
+
+function mouseDragged() {
+    for (i in nodes) {
+        if (nodes[i].hovering()) {
+
+        }
+
+        
+    }
+}
+
+function mouseReleased() {
+    heldNode = "none";
 }
 
 function mouseMoved() {
     for (i in nodes) {
-        if (dist(mouseX, mouseY, nodes[i].x, nodes[i].y) <= nodeSize/2) {
+        if (nodes[i].hovering()) {
             cursor(HAND);
             return;
         }
