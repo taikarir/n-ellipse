@@ -1,6 +1,6 @@
 let canvasSize = 800;
 let nodeSize   = 50;
-let radius     = 400;
+let radius     = 200;
 
 var heldNode = "none";
 var curveNodes = [];
@@ -87,12 +87,12 @@ function calcAverage() {
     return [sumx/nodes.length, sumy/nodes.length];
 }
 
-function checkRadius(theta, center, prevRad) {
+function checkRadius(theta, center, shapeRadius, prevRad) {
     var rad = prevRad;
     var testx;
     var testy;
     var distance;
-    var newradius = radius * nodes.length;
+    var newradius = shapeRadius * nodes.length;
 
     while (rad < newradius) {
         testx = center[0] + rad * cos(theta);
@@ -107,19 +107,20 @@ function checkRadius(theta, center, prevRad) {
 }
 
 function drawEllipse() {
+    for (var indRad = 0; indRad < radius; indRad += radius/20) {
     var theta = 0;
     
     let thetaStep = 1;
-    let thetaStop = 360;
+    let thetaStop = 400;
     var center = calcAverage();
     
     var prevRad = 0;
     curveNodes = [];
 
     noFill();
-
+    
     while (theta <= thetaStop) {
-        prevRad = checkRadius(theta, center, prevRad);
+        prevRad = checkRadius(theta, center, indRad, prevRad);
         theta += thetaStep;
     }
     
@@ -128,5 +129,6 @@ function drawEllipse() {
         curveVertex(curveNodes[i][0], curveNodes[i][1]);
     }
     endShape();
+    }
     console.log("done");
 }
