@@ -1,4 +1,5 @@
 let canvasSize = 800;
+let nodeSize   = 50;
 var nodes = [];
 
 
@@ -20,4 +21,14 @@ function draw() {
 function mouseClicked() {
     console.log("new node at "+[mouseX, mouseY]);
     nodes.push(new Node(mouseX, mouseY));
+}
+
+function mouseMoved() {
+    for (i in nodes) {
+        if (dist(mouseX, mouseY, nodes[i].x, nodes[i].y) <= nodeSize/2) {
+            cursor(HAND);
+            return;
+        }
+    }
+    cursor(ARROW);
 }
