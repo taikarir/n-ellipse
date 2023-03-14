@@ -18,18 +18,23 @@ function setup() {
 
 function draw() {
     background(0, 0, 0);
-    var avg = calcAverage();
+
+    // draw each node/focus
     for (i in nodes) {
         fill(255, 255, 255);
         ellipse(nodes[i].x, nodes[i].y, 5, 5);
     }
+
+    // if holding a node, change its x and y to mouse
     if (heldNode !== "none") {
         nodes[heldNode].dragged();
     }
+
     drawEllipse();
 }
 
 function mousePressed() {
+    // exit conditions if hovering over a node or a node is already held
     for (i in nodes) {
         if (nodes[i].hovering()) {
             return;
@@ -39,6 +44,7 @@ function mousePressed() {
         return;
     }
     
+    // creates a new node
     if (mouseX >= 0 && mouseX <= canvasSize
      && mouseY >= 0 && mouseY <= canvasSize) {
         console.log("new node at "+[mouseX, mouseY]);
@@ -73,6 +79,7 @@ function mouseMoved() {
     cursor(ARROW);
 }
 
+// sum of the distance from a point to each of the foci
 function sumDistance(x, y) {
     var sum = 0;
     for (i in nodes) {
@@ -81,6 +88,7 @@ function sumDistance(x, y) {
     return sum;
 }
 
+// product fo the distance from a point to each of the foci
 function multiplyDistance(x, y) {
     var prod = 1;
     for (i in nodes) {
@@ -89,6 +97,7 @@ function multiplyDistance(x, y) {
     return prod;
 }
 
+// average position of the foci. used as the origin of the polar graph of the ellipse
 function calcAverage() {
     var sumx = 0;
     var sumy = 0;
@@ -99,6 +108,7 @@ function calcAverage() {
     return [sumx/nodes.length, sumy/nodes.length];
 }
 
+// draws an ellipse of the points whose sum of the distance to each focus is a constant
 function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var rad = prevRad;
     var testx;
@@ -107,17 +117,22 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var newradius = shapeRadius * nodes.length;
 
     while (rad < newradius) {
+        // test each point at a given angle theta
         testx = center[0] + rad * cos(theta);
         testy = center[1] + rad * sin(theta);
         distance = sumDistance(testx, testy);
+
+        // if the error is within the margin of error, add the point to the set
         if (abs(distance - newradius) < (accuracy * newradius)) {
             curveNodes.push([testx, testy]);
+            // the curve is continuous, the starting point of search for the next angle should be similar
             return (rad * 0.9);
         }
         rad += 1
     }
 }
 
+// draws an ellipse of the points whose product of the distance to each focus is a constant
 function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var rad = prevRad;
     var testx;
@@ -154,11 +169,13 @@ function drawEllipse() {
 
         noFill();
     
+        // searches each theta for a matching radius with minimal error
         while (theta <= thetaStop) {
             prevRad = sumCheckRadius(theta, center, accuracy, indRad, prevRad);
             theta += thetaStep;
         }
-    
+
+        // draws the shape from the set of collected points
         beginShape();
             for (i in curveNodes) {
                 curveVertex(curveNodes[i][0], curveNodes[i][1]);
