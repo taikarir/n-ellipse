@@ -12,13 +12,14 @@ function setup() {
     createCanvas(canvasSize, canvasSize);
     textSize(32);
     textAlign(CENTER,CENTER);
+    angleMode(DEGREES);
     strokeWeight(3);
+    stroke(255, 0, 0);
 }
 
 function draw() {
     background(0, 0, 0);
     var avg = calcAverage();
-    point(avg[0], avg[1]);
     for (i in nodes) {
         fill(255, 255, 255);
         ellipse(nodes[i].x, nodes[i].y, 5, 5);
@@ -87,7 +88,6 @@ function calcAverage() {
 }
 
 function checkRadius(theta, center, prevRad) {
-    // console.log(theta);
     var rad = prevRad;
     var testx;
     var testy;
@@ -97,7 +97,6 @@ function checkRadius(theta, center, prevRad) {
     while (rad < newradius) {
         testx = center[0] + rad * cos(theta);
         testy = center[1] + rad * sin(theta);
-        console.log(testx, testy);
         distance = calcDistance(testx, testy);
         if (abs(distance - newradius) < (0.01 * newradius)) {
             curveNodes.push([testx, testy]);
@@ -118,7 +117,6 @@ function drawEllipse() {
     curveNodes = [];
 
     noFill();
-    stroke(255, 0, 0);
 
     while (theta <= thetaStop) {
         prevRad = checkRadius(theta, center, prevRad);
