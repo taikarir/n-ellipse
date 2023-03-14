@@ -11,4 +11,8 @@ class Node {
             return false;
         }
     }
+    dragged() {
+        this.x = mouseX;
+        this.y = mouseY;
+    }
 }
