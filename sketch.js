@@ -34,7 +34,12 @@ function draw() {
     }
 }
 
-function mouseClicked() {
+function mousePressed() {
+    for (i in nodes) {
+        if (nodes[i].hovering()) {
+            return;
+        }
+    }
     if (heldNode !== "none") {
         return;
     }
