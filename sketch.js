@@ -1,4 +1,6 @@
 let canvasSize = 800;
+var nodes = [];
+
 
 function setup() {
     createCanvas(canvasSize, canvasSize);
@@ -9,4 +11,13 @@ function setup() {
 
 function draw() {
     background(0, 0, 0);
+    for (i in nodes) {
+        fill(255, 255, 255);
+        ellipse(nodes[i].x, nodes[i].y, 50, 50);
+    }
+}
+
+function mouseClicked() {
+    console.log("new node at "+[mouseX, mouseY]);
+    nodes.push(new Node(mouseX, mouseY));
 }
