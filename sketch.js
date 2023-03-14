@@ -25,8 +25,11 @@ function draw() {
     if (heldNode !== "none") {
         nodes[heldNode].dragged();
     }
+    if (keyIsPressed) {
+        drawEllipse();
+        
 
-    drawEllipse();
+    }
 }
 
 function mouseClicked() {
@@ -82,9 +85,9 @@ function calcAverage() {
     return [sumx/nodes.length, sumy/nodes.length];
 }
 
-function checkRadius(theta, center) {
+function checkRadius(theta, center, prevRad) {
     // console.log(theta);
-    var rad = 0;
+    var rad = prevRad;
     var testx;
     var testy;
     var distance;
@@ -94,9 +97,9 @@ function checkRadius(theta, center) {
         testy = center[1] + rad * sin(theta);
         console.log(testx, testy);
         distance = calcDistance(testx, testy);
-        if (abs(distance - radius) < (0.1 * radius)) {
+        if (abs(distance - radius) < (0.01 * radius)) {
             point(testx, testy);
-            return;
+            return (rad * 0.9);
         }
         rad += 1
     }
@@ -105,14 +108,17 @@ function checkRadius(theta, center) {
 function drawEllipse() {
     var theta = 0;
     
-    let thetaStep = 10;
+    let thetaStep = 1;
     let thetaStop = 360;
     var center = calcAverage();
+    
+    var prevRad = 0;
+
     point(center[0], center[1]);
     stroke(255, 0, 0);
 
     while (theta <= thetaStop) {
-        checkRadius(theta, center);
+        prevRad = checkRadius(theta, center, prevRad);
         theta += thetaStep;
     }
     console.log("done");
