@@ -22,6 +22,7 @@ function draw() {
     // draw each node/focus
     for (i in nodes) {
         fill(255, 255, 255);
+        stroke(255, 255, 255);
         ellipse(nodes[i].x, nodes[i].y, 5, 5);
     }
 
@@ -109,7 +110,7 @@ function calcAverage() {
 }
 
 // draws an ellipse of the points whose sum of the distance to each focus is a constant
-function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
+function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad, selectedLineStyle) {
     var rad = prevRad;
     var testx;
     var testy;
@@ -117,7 +118,7 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var error;
     var newradius = shapeRadius * nodes.length;
     var lowBoundMet = false;
-    var lowBoundRad;
+    var lowBoundRad = "none";
 
     while (rad < newradius) {
         // test each point at a given angle theta
@@ -126,19 +127,32 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
         distance = sumDistance(testx, testy);
 
         error = abs(distance - newradius);
+        if (selectedLineStyle === "line") {
         // if the error is within the margin of error, add the point to the set
-        if (error < (accuracy * newradius)) {
-            curveNodes.push([testx, testy]);
-            lowBoundRad = rad;
-            // the curve is continuous, the starting point of search for the next angle should be similar
-            return (lowBoundRad * 0.9), error;
+            if (error < (accuracy * newradius)) {
+                curveNodes.push([testx, testy]);
+                lowBoundRad = rad;
+                // the curve is continuous, the starting point of search for the next angle should be similar
+                return (lowBoundRad * 0.9), error;
+            }
+        } else if (selectedLineStyle === "cloud") {
+            if (error < (accuracy * newradius)) {
+                curveNodes.push([testx, testy, error]);
+                if (lowBoundRad === "none") {
+                    lowBoundRad = rad;
+                }
+            } else if (error > (accuracy * newradius)) {
+                if (lowBoundRad !== "none") {
+                    return (lowBoundRad * 0.9), error;
+                }
+            }
         }
         rad += 1
     }
 }
 
 // draws an ellipse of the points whose product of the distance to each focus is a constant
-function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
+function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad, selectedLineStyle) {
     var rad = prevRad;
     var testx;
     var testy;
@@ -195,22 +209,42 @@ function drawEllipse() {
                 break;
             }
         }
+        
+        var lineRadios = document.getElementsByName("lineStyle");
+        var selectedLineStyle;
+        
+        for (var i = 0; i < lineRadios.length; i++) {
+            if (lineRadios[i].checked) {
+                selectedLineStyle = lineRadios[i].value;
+                break;
+            }
+        }
+    
     
         // searches each theta for a matching radius with minimal error
         do {
             if (selectedOperation === "sum") {
-                prevRad, error = sumCheckRadius(theta, center, accuracy, indRad, prevRad);
+                prevRad, error = sumCheckRadius(theta, center, accuracy, indRad, prevRad, selectedLineStyle);
             } else if (selectedOperation === "product") {
-                prevRad, error = prodCheckRadius(theta, center, accuracy, indRad, prevRad);
+                prevRad, error = prodCheckRadius(theta, center, accuracy, indRad, prevRad, selectedLineStyle);
             }
             theta += thetaStep;
-        } while (theta <= thetaStop);
+        } while (theta < thetaStop);
 
         // draws the shape from the set of collected points
-        beginShape();
+        if (selectedLineStyle === "line") {
+            beginShape();
             for (i in curveNodes) {
                 curveVertex(curveNodes[i][0], curveNodes[i][1]);
             }
-        endShape();
+            endShape();
+        } else if (selectedLineStyle === "cloud") {
+            var errorColor;
+            for (i in curveNodes) {
+                errorColor = (255-(curveNodes[i][2]/(accuracy*radius*nodes.length)*255));
+                stroke(errorColor, errorColor, errorColor);
+                point(curveNodes[i][0], curveNodes[i][1]);
+            }
+        }
     }
 }
