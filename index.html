@@ -23,6 +23,12 @@
       <output for="accuracy" id="accuracyValue"></output>
     </span>
     <br>
+    <span>
+      Number of lines:<br>
+      <input type="range" min="1" max="20" value="10" class="slider" id="lines">
+      <output for="lines" id="numberLines"></output>
+    </span>
+    <br>
     <label>
       <input type="radio" name="operation" value="sum" checked> Sum
     </label>
@@ -53,6 +59,14 @@
 
     accuracySlider.oninput = function() {
       accuracySliderOutput.innerHTML = this.value/1000;
+    }
+
+    var linesSlider = document.getElementById("lines");
+    var linesSliderOutput = document.getElementById("numberLines");
+    linesSliderOutput.innerHTML = linesSlider.value; // Display the default slider value
+
+    linesSlider.oninput = function() {
+      linesSliderOutput.innerHTML = this.value;
     }
   </script>
 </html>

@@ -170,13 +170,14 @@ function drawEllipse() {
     var radius = parseInt(document.getElementById("radius").value);
     var thetaStep = parseInt(document.getElementById("thetaStep").value);
     var accuracy = parseInt(document.getElementById("accuracy").value)/1000;
+    var lines = parseInt(document.getElementById("lines").value);
 
     var theta = 0;
     let thetaStop = 400;
     var prevRad;
     var error;
 
-    for (var indRad = 0; indRad <= radius; indRad += radius/20) {
+    for (var indRad = 0; indRad <= radius; indRad += radius/lines) {
         theta = 0;
         center = calcAverage();
         error = 0;
