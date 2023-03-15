@@ -114,7 +114,10 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var testx;
     var testy;
     var distance;
+    var error;
     var newradius = shapeRadius * nodes.length;
+    var lowBoundMet = false;
+    var lowBoundRad;
 
     while (rad < newradius) {
         // test each point at a given angle theta
@@ -122,11 +125,13 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
         testy = center[1] + rad * sin(theta);
         distance = sumDistance(testx, testy);
 
+        error = abs(distance - newradius);
         // if the error is within the margin of error, add the point to the set
-        if (abs(distance - newradius) < (accuracy * newradius)) {
+        if (error < (accuracy * newradius)) {
             curveNodes.push([testx, testy]);
+            lowBoundRad = rad;
             // the curve is continuous, the starting point of search for the next angle should be similar
-            return (rad * 0.9);
+            return (lowBoundRad * 0.9), error;
         }
         rad += 1
     }
@@ -138,17 +143,26 @@ function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad) {
     var testx;
     var testy;
     var distance;
+    var error;
     var newradius = pow(shapeRadius, nodes.length);
+    var lowBoundMet = false;
+    var lowBoundRad;
 
     while (rad < newradius) {
         testx = center[0] + rad * cos(theta);
         testy = center[1] + rad * sin(theta);
         distance = multiplyDistance(testx, testy);
-        if (abs(distance - newradius) < (accuracy * newradius)) {
+        
+        error = abs(distance - newradius);
+        if (error < (accuracy * newradius)) {
             curveNodes.push([testx, testy]);
-            return (rad * 0.9);
+            lowBoundRad = rad;
+            return (lowBoundRad * 0.9), error;
         }
         rad += 1
+        if ((rad + 5) > newradius) {
+            return newradius, error;
+        }
     }
 }
 
@@ -160,20 +174,36 @@ function drawEllipse() {
     var theta = 0;
     let thetaStop = 400;
     var prevRad;
+    var error;
 
-    for (var indRad = 0; indRad < radius; indRad += radius/20) {
+    for (var indRad = 0; indRad <= radius; indRad += radius/20) {
         theta = 0;
         center = calcAverage();
+        error = 0;
         prevRad = 0;
         curveNodes = [];
 
         noFill();
+
+        var operationRadios = document.getElementsByName("operation");
+        var selectedOperation;
+        
+        for (var i = 0; i < operationRadios.length; i++) {
+            if (operationRadios[i].checked) {
+                selectedOperation = operationRadios[i].value;
+                break;
+            }
+        }
     
         // searches each theta for a matching radius with minimal error
-        while (theta <= thetaStop) {
-            prevRad = sumCheckRadius(theta, center, accuracy, indRad, prevRad);
+        do {
+            if (selectedOperation === "sum") {
+                prevRad, error = sumCheckRadius(theta, center, accuracy, indRad, prevRad);
+            } else if (selectedOperation === "product") {
+                prevRad, error = prodCheckRadius(theta, center, accuracy, indRad, prevRad);
+            }
             theta += thetaStep;
-        }
+        } while (theta <= thetaStop);
 
         // draws the shape from the set of collected points
         beginShape();
