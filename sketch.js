@@ -1,10 +1,12 @@
 let canvasSize = 800;
-let nodeSize   = 50;
+let nodeSize = 50;
+let thetaStop = 400;
 
 var heldNode = "none";
 var curveNodes = [];
 
 var nodes = [];
+var exit = 0;
 
 
 function setup() {
@@ -22,7 +24,7 @@ function draw() {
     // draw each node/focus
     for (i in nodes) {
         fill(255, 255, 255);
-        stroke(255, 255, 255);
+        noStroke();
         ellipse(nodes[i].x, nodes[i].y, 5, 5);
     }
 
@@ -60,6 +62,7 @@ function mouseDragged() {
 
     for (i in nodes) {
         if (nodes[i].hovering()) {
+            exit = 0;
             heldNode = i;
             break;
         }
@@ -137,7 +140,7 @@ function sumCheckRadius(theta, center, accuracy, shapeRadius, prevRad, selectedL
             }
         } else if (selectedLineStyle === "cloud") {
             if (error < (accuracy * newradius)) {
-                curveNodes.push([testx, testy, error]);
+                curveNodes.push([testx, testy, error, rad]);
                 if (lowBoundRad === "none") {
                     lowBoundRad = rad;
                 }
@@ -160,7 +163,7 @@ function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad, selected
     var error;
     var newradius = pow(shapeRadius, nodes.length);
     var lowBoundMet = false;
-    var lowBoundRad;
+    var lowBoundRad = "none";
 
     while (rad < newradius) {
         testx = center[0] + rad * cos(theta);
@@ -168,14 +171,28 @@ function prodCheckRadius(theta, center, accuracy, shapeRadius, prevRad, selected
         distance = multiplyDistance(testx, testy);
         
         error = abs(distance - newradius);
-        if (error < (accuracy * newradius)) {
-            curveNodes.push([testx, testy]);
-            lowBoundRad = rad;
-            return (lowBoundRad * 0.9), error;
+        if (selectedLineStyle === "line") {
+            if (error < (accuracy * newradius)) {
+                curveNodes.push([testx, testy]);
+                lowBoundRad = rad;
+                return (lowBoundRad * 0.9), error;
+            }
+        } else if (selectedLineStyle === "cloud") {
+            if (error < (accuracy * newradius)) {
+                curveNodes.push([testx, testy, error, rad]);
+                if (lowBoundRad === "none") {
+                    lowBoundRad = rad;
+                }
+            } else if (error > (accuracy * newradius)) {
+                if (lowBoundRad !== "none") {
+                    return (lowBoundRad * 0.9), error;
+                }
+            }
         }
         rad += 1
         if ((rad + 5) > newradius) {
-            return newradius, error;
+            console.log(0);
+            return newradius, "big";
         }
     }
 }
@@ -187,10 +204,13 @@ function drawEllipse() {
     var lines = parseInt(document.getElementById("lines").value);
 
     var theta = 0;
-    let thetaStop = 400;
     var prevRad;
     var error;
-
+/*
+    if (exit) {
+        return;
+    }
+*/
     for (var indRad = 0; indRad <= radius; indRad += radius/lines) {
         theta = 0;
         center = calcAverage();
@@ -227,10 +247,15 @@ function drawEllipse() {
                 prevRad, error = sumCheckRadius(theta, center, accuracy, indRad, prevRad, selectedLineStyle);
             } else if (selectedOperation === "product") {
                 prevRad, error = prodCheckRadius(theta, center, accuracy, indRad, prevRad, selectedLineStyle);
+                if (error === "big") {
+                    exit = 1;
+                    return;
+                }
             }
             theta += thetaStep;
         } while (theta < thetaStop);
 
+        exit = 0;
         // draws the shape from the set of collected points
         if (selectedLineStyle === "line") {
             beginShape();
@@ -242,6 +267,7 @@ function drawEllipse() {
             var errorColor;
             for (i in curveNodes) {
                 errorColor = (255-(curveNodes[i][2]/(accuracy*radius*nodes.length)*255));
+                strokeWeight(2*PI*curveNodes[i][3]/(360/thetaStep));
                 stroke(errorColor, errorColor, errorColor);
                 point(curveNodes[i][0], curveNodes[i][1]);
             }
