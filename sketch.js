@@ -1,6 +1,6 @@
 let canvasSize = 800;
 let nodeSize = 50;
-let thetaStop = 400;
+let thetaStop = 360;
 
 var heldNode = "none";
 var curveNodes = [];
@@ -33,7 +33,9 @@ function draw() {
         nodes[heldNode].dragged();
     }
 
-    drawEllipse();
+    if (nodes.length >= 1) {
+        drawEllipse();
+    }
 }
 
 function mousePressed() {
@@ -202,6 +204,7 @@ function drawEllipse() {
     var thetaStep = parseInt(document.getElementById("thetaStep").value);
     var accuracy = parseInt(document.getElementById("accuracy").value)/1000;
     var lines = parseInt(document.getElementById("lines").value);
+    var cloudSize = parseInt(document.getElementById("clouds").value);
 
     var theta = 0;
     var prevRad;
@@ -242,7 +245,10 @@ function drawEllipse() {
     
     
         // searches each theta for a matching radius with minimal error
-        do {
+        while (theta < (thetaStop+thetaStep-1)) {
+            if (theta > thetaStop) {
+                theta = thetaStop-1;
+            }
             if (selectedOperation === "sum") {
                 prevRad, error = sumCheckRadius(theta, center, accuracy, indRad, prevRad, selectedLineStyle);
             } else if (selectedOperation === "product") {
@@ -253,23 +259,34 @@ function drawEllipse() {
                 }
             }
             theta += thetaStep;
-        } while (theta < thetaStop);
+        }
 
         exit = 0;
         // draws the shape from the set of collected points
         if (selectedLineStyle === "line") {
-            beginShape();
-            for (i in curveNodes) {
-                curveVertex(curveNodes[i][0], curveNodes[i][1]);
+            if (curveNodes.length >= 1) {
+                stroke(255, 255, 255);
+                beginShape();
+                curveVertex(curveNodes[0][0], curveNodes[0][1]);
+                for (i in curveNodes) {
+                    curveVertex(curveNodes[i][0], curveNodes[i][1]);
+                }
+                curveVertex(curveNodes[0][0], curveNodes[0][1]);
+                endShape();
+                /*for (i in curveNodes) {
+                    stroke(255, 0, 0);
+                    point(curveNodes[i][0], curveNodes[i][1]);
+                }*/
             }
-            endShape();
         } else if (selectedLineStyle === "cloud") {
-            var errorColor;
-            for (i in curveNodes) {
-                errorColor = (255-(curveNodes[i][2]/(accuracy*radius*nodes.length)*255));
-                strokeWeight(2*PI*curveNodes[i][3]/(360/thetaStep));
-                stroke(errorColor, errorColor, errorColor);
-                point(curveNodes[i][0], curveNodes[i][1]);
+            if (curveNodes.length >= 1) {
+                var errorColor;
+                for (i in curveNodes) {
+                    errorColor = (255-(curveNodes[i][2]/(accuracy*radius*nodes.length)*255));
+                    strokeWeight(cloudSize*PI*curveNodes[i][3]/(360/thetaStep));
+                    stroke(errorColor, errorColor, errorColor);
+                    point(curveNodes[i][0], curveNodes[i][1]);
+                }
             }
         }
     }

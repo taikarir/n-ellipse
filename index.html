@@ -5,43 +5,56 @@
     <script src="nodeclass.js"></script>
   </head>
   <body>
-    <span>
-      Resolution:<br> 
-      <input type="range" min="1" max="100" value="10" class="slider" id="thetaStep">
-      <output for="thetaStep" id="thetaStepValue"></output>
-    </span>
-    <br>
-    <span>
-      Radius:<br>
-      <input type="range" min="50" max="500" value="200" class="slider" id="radius">
-      <output for="radius" id="radiusValue"></output>
-    </span>
-    <br>
-    <span>
-      Margin of Error:<br>
-      <input type="range" min="1" max="1000" value="400" class="slider" id="accuracy">
-      <output for="accuracy" id="accuracyValue"></output>
-    </span>
-    <br>
-    <span>
-      Number of lines:<br>
-      <input type="range" min="1" max="20" value="10" class="slider" id="lines">
-      <output for="lines" id="numberLines"></output>
-    </span>
-    <br>
-    <label>
-      <input type="radio" name="operation" value="sum" checked> Sum
-    </label>
-    <label>
-      <input type="radio" name="operation" value="product"> Product
-    </label>
-    <br>
-    <label>
-      <input type="radio" name="lineStyle" value="line" checked> Line
-    </label>
-    <label>
-      <input type="radio" name="lineStyle" value="cloud"> Cloud
-    </label>
+    <div style="float:right;">
+      <span>
+        Resolution: 
+        <output for="thetaStep" id="thetaStepValue"></output>
+        <br>
+        <input type="range" min="1" max="100" value="10" class="slider" id="thetaStep">
+      </span>
+      <br>
+      <span>
+        Radius:
+        <output for="radius" id="radiusValue"></output>
+        <br>
+        <input type="range" min="50" max="500" value="200" class="slider" id="radius">
+      </span>
+      <br>
+      <span>
+        Error:
+        <output for="accuracy" id="accuracyValue"></output>
+        <br>
+        <input type="range" min="1" max="1000" value="400" class="slider" id="accuracy">
+      </span>
+      <br>
+      <span>
+        Number of lines:
+        <output for="lines" id="numberLines"></output>
+        <br>
+        <input type="range" min="1" max="20" value="10" class="slider" id="lines">
+      </span>
+      <br>
+      <span>
+        Cloud size:
+        <output for="clouds" id="cloudSize"></output>
+        <br>
+        <input type="range" min="1" max="10" value="2" class="slider" id="clouds">
+      </span>
+      <br>
+      <label>
+        <input type="radio" name="operation" value="sum" checked> Sum
+      </label>
+      <label>
+        <input type="radio" name="operation" value="product"> Product
+      </label>
+      <br>
+      <label>
+        <input type="radio" name="lineStyle" value="line" checked> Line
+      </label>
+      <label>
+        <input type="radio" name="lineStyle" value="cloud"> Cloud
+      </label>
+    <div>
   </body>
   <script>
     var thetaSlider = document.getElementById("thetaStep");
@@ -74,6 +87,14 @@
 
     linesSlider.oninput = function() {
       linesSliderOutput.innerHTML = this.value;
+    }
+
+    var cloudSlider = document.getElementById("clouds");
+    var cloudSliderOutput = document.getElementById("cloudSize");
+    cloudSliderOutput.innerHTML = cloudSlider.value; // Display the default slider value
+
+    cloudSlider.oninput = function() {
+      cloudSliderOutput.innerHTML = this.value;
     }
   </script>
 </html>
